@@ -71,22 +71,14 @@ public class Model {
             Vector3 pn2 = rotate.transform(face.getNorm(p2));
             Vector3 pn3 = rotate.transform(face.getNorm(p3));
 
-            face.removeNorm(p1);
-            face.removeNorm(p2);
-            face.removeNorm(p3);
-
             p1 = rotate.transform(p1);
             p2 = rotate.transform(p2);
             p3 = rotate.transform(p3);
 
-            face.addNorm(p1, pn1);
-            face.addNorm(p2, pn2);
-            face.addNorm(p3, pn3);
-
             face.setPlg(new Polygon(p1, p2, p3));
-            face.replaceNorm(plg.getFirstVector(), face.getPlg().getFirstVector(), face.getNorm(plg.getFirstVector()));
-            face.replaceNorm(plg.getSecondVector(), face.getPlg().getSecondVector(), face.getNorm(plg.getSecondVector()));
-            face.replaceNorm(plg.getThirdVector(), face.getPlg().getThirdVector(), face.getNorm(plg.getThirdVector()));
+            face.replaceNorm(plg.getFirstVector(), face.getPlg().getFirstVector(),  pn1);
+            face.replaceNorm(plg.getSecondVector(), face.getPlg().getSecondVector(), pn2);
+            face.replaceNorm(plg.getThirdVector(), face.getPlg().getThirdVector(), pn3);
 
             faces.set(i, face);
             //TODO возможно стоит добавить текстуры

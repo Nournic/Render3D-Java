@@ -29,7 +29,7 @@ public class Main {
         }
 
         ImageScale imageScale = new ImageScale.Builder()
-                .scaleX(900).scaleY(900).shiftX(width/2.0).shiftY(height/2.0)
+                .scaleX(800).scaleY(800).shiftX(width/2.0).shiftY(height/2.0)
                 .build();
 
         ModelRotate rotate = new ModelRotate.Builder().alpha(Math.PI/6).build();

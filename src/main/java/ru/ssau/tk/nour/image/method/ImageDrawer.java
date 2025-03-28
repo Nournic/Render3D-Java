@@ -43,12 +43,12 @@ public class ImageDrawer {
 //        Vector3 pivotMoveToCenter = new Vector3(width/2.0, height/2.0, 0);
 //        model.move(pivotMoveToCenter);
 
-//        if(rotate != null)
-//            model.rotate(
-//                    rotate.getAlpha(),
-//                    rotate.getBeta(),
-//                    rotate.getGamma()
-//            );
+        if(rotate != null)
+            model.rotate(
+                    rotate.getAlpha(),
+                    rotate.getBeta(),
+                    rotate.getGamma()
+            );
 
         model.move(new Vector3(
                 shift.getShiftX(),
