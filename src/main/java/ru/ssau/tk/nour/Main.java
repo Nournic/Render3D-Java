@@ -32,7 +32,7 @@ public class Main {
                 .scaleX(900).scaleY(900).shiftX(width/2.0).shiftY(height/2.0)
                 .build();
 
-        ModelRotate rotate = new ModelRotate.Builder().build();
+        ModelRotate rotate = new ModelRotate.Builder().alpha(Math.PI/6).build();
 
         ImageWriter writer = new ImageWriter(obj, imageScale, rotate);
 
@@ -45,6 +45,8 @@ public class Main {
         frame.setSize(500, 500);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+
+        ImageIO.write(img, "jpg", new File("C:\\Games\\image3.jpg"));
     }
 
     private static BufferedImage createRotated(BufferedImage image)

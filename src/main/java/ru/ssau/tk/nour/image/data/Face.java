@@ -28,12 +28,20 @@ public class Face {
     public void replaceNorm(Vector3 point, Vector3 norm){
         norms.replace(point, norm);
     }
+    public void replaceNorm(Vector3 owner, Vector3 newOwner, Vector3 norm){
+        Vector3 vn = norms.get(owner);
+        removeNorm(owner);
+        norms.put(newOwner, vn);
+    }
+
 
     public void removeNorm(Vector3 point){
         norms.remove(point);
     }
 
+
     public void updateOwnersNorms(){
+
         Vector3[] list = norms.values().toArray(new Vector3[2]);
         norms.clear();
 

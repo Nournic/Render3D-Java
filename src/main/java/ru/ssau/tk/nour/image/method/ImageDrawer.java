@@ -43,12 +43,12 @@ public class ImageDrawer {
 //        Vector3 pivotMoveToCenter = new Vector3(width/2.0, height/2.0, 0);
 //        model.move(pivotMoveToCenter);
 
-        if(rotate != null)
-            model.rotate(
-                    rotate.getAlpha(),
-                    rotate.getBeta(),
-                    rotate.getGamma()
-            );
+//        if(rotate != null)
+//            model.rotate(
+//                    rotate.getAlpha(),
+//                    rotate.getBeta(),
+//                    rotate.getGamma()
+//            );
 
         model.move(new Vector3(
                 shift.getShiftX(),
@@ -61,6 +61,7 @@ public class ImageDrawer {
 
         ArrayList<Face> globalFaces = model.getGlobalFaces();
         for (int i = 0; i < globalFaces.size(); i++){
+            Face oldFace = model.getLocalFaces().get(i);
             Face face = globalFaces.get(i);
             Polygon plg = face.getPlg();
             Face projectFace = new Face(new Polygon(
@@ -80,12 +81,13 @@ public class ImageDrawer {
                             imageScale.getScaleZ() * plg.getThirdVector().getZ() + imageScale.getShiftZ()
                     )));
 
-            face.updateOwnersNorms();
             projectFace.addNorm(projectFace.getPlg().getFirstVector(), face.getNorm(face.getPlg().getFirstVector()));
             projectFace.addNorm(projectFace.getPlg().getSecondVector(), face.getNorm(plg.getSecondVector()));
             projectFace.addNorm(projectFace.getPlg().getThirdVector(), face.getNorm(plg.getThirdVector()));
 
-            drawTriangle(img,zBuffer,projectFace, model.getLocalFaces().get(i));
+
+
+            drawTriangle(img,zBuffer, projectFace, model.getLocalFaces().get(i));
         }
 
         return img;
@@ -158,20 +160,19 @@ public class ImageDrawer {
 
 
 
-        Vector3 ab = test.sub(test1);
-        Vector3 bc = test1.sub(test2);
-
-        Vector3 norm = ab.cross(bc);
+//        Vector3 ab = test.sub(test1);
+//        Vector3 bc = test1.sub(test2);
+//
+//        Vector3 norm = ab.cross(bc);
         Vector3 oneZ = new Vector3(0,0,1);
         //double nl = getVectorMult(norm.getFirst(),norm.get(1),norm.getLast(),0,0,1);
-        double nl = norm.scalar(oneZ);
         //double nsm = nl/(getNorm(norm.getFirst(),norm.get(1),norm.getLast()) * getNorm(0,0,1));
-        double nsm = nl/(norm.length() * oneZ.length());
+//        double nsm = norm.scalar(oneZ)/(norm.length() * oneZ.length());
+//
+//        if(Double.compare(nsm,0.0)>=0)
+//            return false;
 
-        if(Double.compare(nsm,0.0)>=0)
-            return false;
-
-        Color color = new Color(abs((int)(255*nsm)), abs((int)(255*nsm)), abs((int)(255*nsm)));
+        //Color color = new Color(abs((int)(255*nsm)), abs((int)(255*nsm)), abs((int)(255*nsm)));
 
         for (int i = (int)floor(xmin); i < (int)ceil(xmax); i++) {
             for (int j = (int)floor(ymin); j < (int)ceil(ymax); j++) {
@@ -191,24 +192,23 @@ public class ImageDrawer {
                     Vector3 n1 = face.getNorm(face.getPlg().getFirstVector());
                     Vector3 n2 = face.getNorm(face.getPlg().getSecondVector());
                     Vector3 n3 = face.getNorm(face.getPlg().getThirdVector());
-                    //Vector3 ac = test.sub(test2);
-
 
 //                    double I1 = n1.scalar(oneZ)/(n1.length() * oneZ.length());
 //                    double I2 = n2.scalar(oneZ)/(n2.length() * oneZ.length());
 //                    double I3 = n3.scalar(oneZ)/(n3.length() * oneZ.length());
-                    Vector3 normal = n1.mult(barycentric.getFirst()).add(n2.mult(barycentric.get(1))).add(n2.mult(barycentric.getLast()));
-                    normal = normal.mult(1/normal.length());
 
-                    double cos_angle = normal.cross(oneZ).length();
-                    nsm = normal.scalar(oneZ)/(normal.length() * oneZ.length());
+                    Vector3 normal = n1.mult(barycentric.getFirst()).add(n2.mult(barycentric.get(1))).add(n3.mult(barycentric.getLast()));
+
+                    double cos_angle = normal.scalar(oneZ)/(normal.length() * oneZ.length());
+                    //cos_angle = barycentric.getFirst() * I1 + barycentric.get(1) * I2 + barycentric.getLast() * I3;
+                    //nsm = normal.scalar(oneZ)/(normal.length() * oneZ.length());
 
 
 //                    double I1 = n1.scalar(oneZ);
 //                    double I2 = n2.scalar(oneZ);
 //                    double I3 = n3.scalar(oneZ);
 
-                    double intense = max(0,-255*nsm);
+                    double intense = max(0,-255*cos_angle);
                     Color newColor = new Color(abs((int) (intense)), abs((int) (intense)), abs((int) (intense)));
 
                     img.setRGB(i, j, newColor.getRGB());

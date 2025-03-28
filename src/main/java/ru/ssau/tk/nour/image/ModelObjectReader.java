@@ -16,7 +16,7 @@ import java.util.Arrays;
 public class ModelObjectReader {
     private final File objectModel;
     private ArrayList<Vector3> vertices;
-    private ArrayList<Vector3> vert_normals;
+    private ArrayList<Vector3> normals;
     private ArrayList<Polygon> polygons;
     private ArrayList<Face> faces;
 
@@ -57,7 +57,7 @@ public class ModelObjectReader {
 
     private void readVertices(){
         vertices = new ArrayList<>();
-        vert_normals = new ArrayList<>();
+        normals = new ArrayList<>();
         try{
             FileReader reader = new FileReader(objectModel);
             BufferedReader br = new BufferedReader(reader);
@@ -78,8 +78,8 @@ public class ModelObjectReader {
                     double y = Double.parseDouble(parts[2]);
                     double z = Double.parseDouble(parts[3]);
 
-                    Vector3 point = new Vector3(x,y,z);
-                    vert_normals.add(point);
+                    Vector3 norm = new Vector3(x,y,z);
+                    normals.add(norm);
                 }
             }
             br.close();
@@ -123,9 +123,9 @@ public class ModelObjectReader {
                             vertices.get(points[2]-1));
 
                     Face newFace = new Face(polygon);
-                    newFace.addNorm(polygon.getFirstVector(), vert_normals.get(norms[0] - 1));
-                    newFace.addNorm(polygon.getSecondVector(), vert_normals.get(norms[1] - 1));
-                    newFace.addNorm(polygon.getThirdVector(), vert_normals.get(norms[2] - 1));
+                    newFace.addNorm(polygon.getFirstVector(), normals.get(norms[0] - 1));
+                    newFace.addNorm(polygon.getSecondVector(), normals.get(norms[1] - 1));
+                    newFace.addNorm(polygon.getThirdVector(), normals.get(norms[2] - 1));
 
                     faces.add(newFace);
                 }

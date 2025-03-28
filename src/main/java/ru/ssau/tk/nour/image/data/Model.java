@@ -65,22 +65,24 @@ public class Model {
             Vector3 p2 = plg.getSecondVector();
             Vector3 p3 = plg.getThirdVector();
 
-//            Vector3 pn1 = rotate.transform(face.getNorm(p1));
-//            Vector3 pn2 = rotate.transform(face.getNorm(p2));
-//            Vector3 pn3 = rotate.transform(face.getNorm(p3));
-//
-//            face.replaceNorm(p1, pn1);
-//            face.replaceNorm(p2, pn2);
-//            face.replaceNorm(p3, pn3);
+            Vector3 pn1 = rotate.transform(face.getNorm(p1));
+            Vector3 pn2 = rotate.transform(face.getNorm(p2));
+            Vector3 pn3 = rotate.transform(face.getNorm(p3));
+
+            face.removeNorm(p1);
+            face.removeNorm(p2);
+            face.removeNorm(p3);
 
             p1 = rotate.transform(p1);
             p2 = rotate.transform(p2);
             p3 = rotate.transform(p3);
 
+            face.addNorm(p1, pn1);
+            face.addNorm(p2, pn2);
+            face.addNorm(p3, pn3);
+
             face.setPlg(new Polygon(p1, p2, p3));
-            face.replaceNorm(plg.getFirstVector(), rotate.transform(face.getNorm(plg.getFirstVector())));
-            face.replaceNorm(plg.getSecondVector(), rotate.transform(face.getNorm(plg.getSecondVector())));
-            face.replaceNorm(plg.getThirdVector(), rotate.transform(face.getNorm(plg.getThirdVector())));
+            face.updateOwnersNorms();
 
             faces.set(i, face);
             //TODO возможно стоит добавить текстуры
