@@ -17,16 +17,18 @@ public class ImageDrawer {
     private final ImageScale imageScale;
     private ModelRotate rotate;
     private BufferedImage img;
+    private BufferedImage texture;
 
     public ImageDrawer(Model model, ImageScale imageScale) {
         this.model = model;
         this.imageScale = imageScale;
     }
 
-    public ImageDrawer(Model model, ImageScale imageScale, ModelRotate transform) {
+    public ImageDrawer(Model model, ImageScale imageScale, ModelRotate transform, BufferedImage texture) {
         this(model, imageScale);
 
         this.rotate = transform;
+        this.texture = texture;
     }
 
     public BufferedImage draw(int width, int height) {
@@ -40,8 +42,8 @@ public class ImageDrawer {
 
         ImageShift shift = new ImageShift(0, -0.04, 0.2);
 
-//        Vector3 pivotMoveToCenter = new Vector3(width/2.0, height/2.0, 0);
-//        model.move(pivotMoveToCenter);
+       //Vector3 pivotMoveToCenter = new Vector3(width/2.0, height/2.0, 0);
+        //model.move(pivotMoveToCenter);
 
         if(rotate != null)
             model.rotate(
@@ -49,6 +51,7 @@ public class ImageDrawer {
                     rotate.getBeta(),
                     rotate.getGamma()
             );
+        //model.scale(150);
 
         model.move(new Vector3(
                 shift.getShiftX(),
@@ -56,9 +59,12 @@ public class ImageDrawer {
                 shift.getShiftZ()
         ));
 
-
         //Model newModel = scalePolygons(model);
         Graphics2D graphics = (Graphics2D) img.getGraphics();
+        graphics.setColor(Color.cyan);
+        for (int i = 0; i < img.getHeight(); i++) {
+            graphics.drawRect(0,0, img.getWidth(), i);
+        }
 
         ArrayList<Face> globalFaces = model.getGlobalFaces();
         for (Face face : globalFaces) {
@@ -79,11 +85,13 @@ public class ImageDrawer {
                             imageScale.getScaleY() * (plg.getThirdVector().getY() / plg.getThirdVector().getZ()) + imageScale.getShiftY(),
                             imageScale.getScaleZ() * plg.getThirdVector().getZ() + imageScale.getShiftZ()
                     )));
-
             projectFace.addNorm(projectFace.getPlg().getFirstVector(), face.getNorm(plg.getFirstVector()));
             projectFace.addNorm(projectFace.getPlg().getSecondVector(), face.getNorm(plg.getSecondVector()));
             projectFace.addNorm(projectFace.getPlg().getThirdVector(), face.getNorm(plg.getThirdVector()));
 
+            projectFace.addTexture(projectFace.getPlg().getFirstVector(), face.getTexture(plg.getFirstVector()));
+            projectFace.addTexture(projectFace.getPlg().getSecondVector(), face.getTexture(plg.getSecondVector()));
+            projectFace.addTexture(projectFace.getPlg().getThirdVector(), face.getTexture(plg.getThirdVector()));
 
             drawTriangle(graphics, zBuffer, projectFace);
         }
@@ -128,7 +136,6 @@ public class ImageDrawer {
         Vector3 p2 = plg.getSecondVector();
         Vector3 p3 = plg.getThirdVector();
 
-
         double xmin = min(min(p1.getX(), p2.getX()), p3.getX());
         double xmax = max(max(p1.getX(), p2.getX()), p3.getX());
         double ymin = min(min(p1.getY(), p2.getY()), p3.getY());
@@ -160,9 +167,9 @@ public class ImageDrawer {
                     if(zBuffer[i][j]<zb)
                         continue;
 
-                    Vector3 n1 = face.getNorm(face.getPlg().getFirstVector());
-                    Vector3 n2 = face.getNorm(face.getPlg().getSecondVector());
-                    Vector3 n3 = face.getNorm(face.getPlg().getThirdVector());
+                    Vector3 n1 = face.getNorm(p1);
+                    Vector3 n2 = face.getNorm(p2);
+                    Vector3 n3 = face.getNorm(p3);
 
                     Vector3 normal = n1.mult(l1)
                             .add(n2.mult(l2))
@@ -170,8 +177,23 @@ public class ImageDrawer {
 
                     double cos_angle = normal.scalar(lightDirection)/(normal.length() * lightDirection.length());
 
-                    double intense = max(0,-255*cos_angle);
+                    double intense = abs(-255*cos_angle);
                     Color newColor = new Color(abs((int) (intense)), abs((int) (intense)), abs((int) (intense)));
+
+                    if(texture!=null){
+                        Vector3 vt1 = face.getTexture(p1);
+                        Vector3 vt2 = face.getTexture(p2);
+                        Vector3 vt3 = face.getTexture(p3);
+                        int xt = (int)(texture.getWidth() * (l1 * vt1.getX() + l2 * vt2.getX() + l3 * vt3.getX()));
+                        int yt = (int)(texture.getHeight() * (l1 * vt1.getY() + l2 * vt2.getY() + l3 * vt3.getY()));
+                        newColor = new Color(texture.getRGB(xt,yt));
+
+                        int red = (int)abs(max(0.0, -newColor.getRed() * cos_angle));
+                        int green = (int)abs(max(0.0, -newColor.getGreen() * cos_angle));
+                        int blue = (int)abs(max(0.0, -newColor.getBlue() * cos_angle));
+                        newColor = new Color(red, green, blue);
+                    }
+
 
                     graphic.setColor(newColor);
                     graphic.drawRect(i,j, 1,1);

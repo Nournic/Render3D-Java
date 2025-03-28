@@ -16,9 +16,9 @@ public class ImageWriter {
         methodDraw = new ImageDrawer(objectReader.getModel(), imageScale);
     }
 
-    public ImageWriter(File pathToObject, ImageScale imageScale, ModelRotate transform) {
+    public ImageWriter(File pathToObject, ImageScale imageScale, ModelRotate transform, BufferedImage texture) {
         ModelObjectReader objectReader = new ModelObjectReader(pathToObject);
-        methodDraw = new ImageDrawer(objectReader.getModel(), imageScale, transform);
+        methodDraw = new ImageDrawer(objectReader.getModel(), imageScale, transform, texture);
     }
 
     public BufferedImage getImage(int width, int height){

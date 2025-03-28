@@ -26,9 +26,8 @@ public class Face {
     }
 
     public void replaceNorm(Vector3 owner, Vector3 newOwner, Vector3 norm){
-        Vector3 vn = norms.get(owner);
         removeNorm(owner);
-        norms.put(newOwner, vn);
+        norms.put(newOwner, norm);
     }
 
     public void removeNorm(Vector3 point){
@@ -43,11 +42,15 @@ public class Face {
         textures.put(point, texture);
     }
 
-    public void replaceTexture(Vector3 point, Vector3 texture){
-        textures.replace(point, texture);
+    public void replaceTexture(Vector3 owner, Vector3 newOwner, Vector3 texture){
+        removeTexture(owner);
+        textures.put(newOwner, texture);
     }
 
     public Vector3 getTexture(Vector3 point){
         return textures.get(point);
+    }
+    public void removeTexture(Vector3 point){
+        textures.remove(point);
     }
 }

@@ -29,12 +29,15 @@ public class Main {
         }
 
         ImageScale imageScale = new ImageScale.Builder()
-                .scaleX(800).scaleY(800).shiftX(width/2.0).shiftY(height/2.0)
+                .scaleX(900).scaleY(900).shiftX(width/2.0).shiftY(height/2.0)
                 .build();
 
-        ModelRotate rotate = new ModelRotate.Builder().alpha(Math.PI/6).build();
 
-        ImageWriter writer = new ImageWriter(obj, imageScale, rotate);
+
+        ModelRotate rotate = new ModelRotate.Builder().beta(Math.PI).build();
+
+        BufferedImage texture = ImageIO.read(new File("C:\\Games\\bunny_texture.jpg"));
+        ImageWriter writer = new ImageWriter(obj, imageScale, rotate, texture);
 
         BufferedImage img = writer.getImage(width, height);
         img = createRotated(img);

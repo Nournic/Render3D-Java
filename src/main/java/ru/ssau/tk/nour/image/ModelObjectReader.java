@@ -17,7 +17,7 @@ public class ModelObjectReader {
     private final File objectModel;
     private ArrayList<Vector3> vertices;
     private ArrayList<Vector3> normals;
-    private ArrayList<Polygon> polygons;
+    private ArrayList<Vector3> textures;
     private ArrayList<Face> faces;
 
     private Model model;
@@ -58,13 +58,16 @@ public class ModelObjectReader {
     private void readVertices(){
         vertices = new ArrayList<>();
         normals = new ArrayList<>();
+        textures = new ArrayList<>();
         try{
             FileReader reader = new FileReader(objectModel);
             BufferedReader br = new BufferedReader(reader);
             String line;
             while((line = br.readLine()) != null){
+                line = line.replace("  ", " ");
                 if(line.startsWith("v ")){
                     String[] parts = line.split(" ");
+
                     double x = Double.parseDouble(parts[1]);
                     double y = Double.parseDouble(parts[2]);
                     double z = Double.parseDouble(parts[3]);
@@ -73,7 +76,7 @@ public class ModelObjectReader {
                     vertices.add(point);
                 }
                 if(line.startsWith("vn ")){
-                    String[] parts = line.split(" ");
+                    String[] parts = (line.split(" "));
                     double x = Double.parseDouble(parts[1]);
                     double y = Double.parseDouble(parts[2]);
                     double z = Double.parseDouble(parts[3]);
@@ -81,19 +84,20 @@ public class ModelObjectReader {
                     Vector3 norm = new Vector3(x,y,z);
                     normals.add(norm);
                 }
+                if(line.startsWith("vt ")){
+                    String[] parts = (line.split(" "));
+                    double x = Double.parseDouble(parts[1]);
+                    double y = Double.parseDouble(parts[2]);
+
+                    Vector3 texture = new Vector3(x,1-y,0);
+                    textures.add(texture);
+                }
             }
             br.close();
             reader.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private ArrayList<Polygon> getPolygons() {
-        if(polygons == null)
-            readObjFile();
-
-        return polygons;
     }
 
     private void readPolygons(){
@@ -109,7 +113,7 @@ public class ModelObjectReader {
                             .map(e->e.split("/")[0])
                             .mapToInt(Integer::parseInt).toArray();
 
-                    int[] textures = Arrays.stream(line.split(" ")).skip(1)
+                    int[] texture = Arrays.stream(line.split(" ")).skip(1)
                             .map(e->e.split("/")[1])
                             .mapToInt(Integer::parseInt).toArray();
 
@@ -126,6 +130,15 @@ public class ModelObjectReader {
                     newFace.addNorm(polygon.getFirstVector(), normals.get(norms[0] - 1));
                     newFace.addNorm(polygon.getSecondVector(), normals.get(norms[1] - 1));
                     newFace.addNorm(polygon.getThirdVector(), normals.get(norms[2] - 1));
+
+                    newFace.addTexture(polygon.getFirstVector(), textures.get(texture[0] - 1));
+                    newFace.addTexture(polygon.getSecondVector(), textures.get(texture[1] - 1));
+                    newFace.addTexture(polygon.getThirdVector(), textures.get(texture[2] - 1));
+
+                    if(Double.compare(textures.get(texture[0] - 1).getX(), 0.680486) == 0 & Double.compare(textures.get(texture[0] - 1).getY(), 0.197526) == 0)
+                    {
+                        System.out.println(123);
+                    }
 
                     faces.add(newFace);
                 }
