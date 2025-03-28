@@ -16,7 +16,7 @@ public class ImageDrawer {
     private final Model model;
     private final ImageScale imageScale;
     private ModelRotate rotate;
-
+    private BufferedImage img;
 
     public ImageDrawer(Model model, ImageScale imageScale) {
         this.model = model;
@@ -30,7 +30,7 @@ public class ImageDrawer {
     }
 
     public BufferedImage draw(int width, int height) {
-        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         double[][] zBuffer = new double[1000][1000];
         for (int i = 0; i < 1000; i++) {
             for (int j = 0; j < 1000; j++) {
@@ -58,21 +58,21 @@ public class ImageDrawer {
 
 
         //Model newModel = scalePolygons(model);
+        Graphics2D graphics = (Graphics2D) img.getGraphics();
 
         ArrayList<Face> globalFaces = model.getGlobalFaces();
-        for (int i = 0; i < globalFaces.size(); i++){
-            Face face = globalFaces.get(i);
+        for (Face face : globalFaces) {
             Polygon plg = face.getPlg();
             Face projectFace = new Face(new Polygon(
                     new Vector3(
                             imageScale.getScaleX() * (plg.getFirstVector().getX() / plg.getFirstVector().getZ()) + imageScale.getShiftX(),
                             imageScale.getScaleY() * (plg.getFirstVector().getY() / plg.getFirstVector().getZ()) + imageScale.getShiftY(),
-                            imageScale.getScaleZ()*   plg.getFirstVector().getZ() + imageScale.getShiftZ()
+                            imageScale.getScaleZ() * plg.getFirstVector().getZ() + imageScale.getShiftZ()
                     ),
                     new Vector3(
                             imageScale.getScaleX() * (plg.getSecondVector().getX() / plg.getSecondVector().getZ()) + imageScale.getShiftX(),
                             imageScale.getScaleY() * (plg.getSecondVector().getY() / plg.getSecondVector().getZ()) + imageScale.getShiftY(),
-                            imageScale.getScaleZ() *  plg.getSecondVector().getZ() + imageScale.getShiftZ()
+                            imageScale.getScaleZ() * plg.getSecondVector().getZ() + imageScale.getShiftZ()
                     ),
                     new Vector3(
                             imageScale.getScaleX() * (plg.getThirdVector().getX() / plg.getThirdVector().getZ()) + imageScale.getShiftX(),
@@ -85,9 +85,9 @@ public class ImageDrawer {
             projectFace.addNorm(projectFace.getPlg().getThirdVector(), face.getNorm(plg.getThirdVector()));
 
 
-
-            drawTriangle(img,zBuffer, projectFace);
+            drawTriangle(graphics, zBuffer, projectFace);
         }
+        graphics.dispose();
 
         return img;
     }
@@ -121,57 +121,33 @@ public class ImageDrawer {
         return newModel;
     }
 
-    private boolean drawTriangle(BufferedImage img, double[][] zBuffer, Face face){
+    private boolean drawTriangle(Graphics2D graphic, double[][] zBuffer, Face face){
         Polygon plg = face.getPlg();
-//        Vector3 p1 = new Vector3(
-//                    imageScale.getScaleX() * (plg.getFirstVector().getX() / plg.getFirstVector().getZ()) + imageScale.getShiftX(),
-//                    imageScale.getScaleY() * (plg.getFirstVector().getY() / plg.getFirstVector().getZ()) + imageScale.getShiftY(),
-//                    imageScale.getScaleZ()*   plg.getFirstVector().getZ() + imageScale.getShiftZ()
-//            );
-//
-//            Vector3 p2 = new Vector3(
-//                    imageScale.getScaleX() * (plg.getSecondVector().getX() / plg.getSecondVector().getZ()) + imageScale.getShiftX(),
-//                    imageScale.getScaleY() * (plg.getSecondVector().getY() / plg.getSecondVector().getZ()) + imageScale.getShiftY(),
-//                    imageScale.getScaleZ() *  plg.getSecondVector().getZ() + imageScale.getShiftZ()
-//            );
-//
-//            Vector3 p3 = new Vector3(
-//                    imageScale.getScaleX() *(plg.getThirdVector().getX() / plg.getThirdVector().getZ()) + imageScale.getShiftX(),
-//                    imageScale.getScaleY() * (plg.getThirdVector().getY() / plg.getThirdVector().getZ()) + imageScale.getShiftY(),
-//                    imageScale.getScaleZ() * plg.getThirdVector().getZ() + imageScale.getShiftZ()
-//            );
+
         Vector3 p1 = plg.getFirstVector();
         Vector3 p2 = plg.getSecondVector();
         Vector3 p3 = plg.getThirdVector();
 
-        double xmin = min(min(p1.getX(), p2.getX()), p3.getX()) < 0
-                ? 0 : min(min(p1.getX(), p2.getX()), p3.getX());
-        double xmax = max(max(p1.getX(), p2.getX()), p3.getX()) > img.getWidth()
-                ? img.getWidth(): max(max(p1.getX(), p2.getX()), p3.getX());
-        double ymin = min(min(p1.getY(), p2.getY()), p3.getY()) < 0
-                ? 0 : min(min(p1.getY(), p2.getY()), p3.getY());
-        double ymax = max(max(p1.getY(), p2.getY()), p3.getY()) > img.getHeight()
-                ? img.getHeight(): max(max(p1.getY(), p2.getY()), p3.getY());
 
+        double xmin = min(min(p1.getX(), p2.getX()), p3.getX());
+        double xmax = max(max(p1.getX(), p2.getX()), p3.getX());
+        double ymin = min(min(p1.getY(), p2.getY()), p3.getY());
+        double ymax = max(max(p1.getY(), p2.getY()), p3.getY());
 
+        xmin = xmin < 0 ? 0 : xmin;
+        xmax = xmax > img.getWidth() ? img.getWidth() : xmax;
+        ymin = ymin < 0 ? 0 : ymin;
+        ymax = ymax > img.getHeight() ? img.getHeight() : ymax;
 
-//        Vector3 ab = test.sub(test1);
-//        Vector3 bc = test1.sub(test2);
-//
-//        Vector3 norm = ab.cross(bc);
-        Vector3 oneZ = new Vector3(0,0,1);
-        //double nl = getVectorMult(norm.getFirst(),norm.get(1),norm.getLast(),0,0,1);
-        //double nsm = nl/(getNorm(norm.getFirst(),norm.get(1),norm.getLast()) * getNorm(0,0,1));
-//        double nsm = norm.scalar(oneZ)/(norm.length() * oneZ.length());
-//
-//        if(Double.compare(nsm,0.0)>=0)
-//            return false;
-
-        //Color color = new Color(abs((int)(255*nsm)), abs((int)(255*nsm)), abs((int)(255*nsm)));
+        Vector3 lightDirection = new Vector3(0,0,1);
 
         for (int i = (int)floor(xmin); i < (int)ceil(xmax); i++) {
             for (int j = (int)floor(ymin); j < (int)ceil(ymax); j++) {
                 ArrayList<Double> barycentric = evaluateBarycentricCoordinates(i,j,p1.getX(),p1.getY(),p2.getX(),p2.getY(),p3.getX(),p3.getY());
+                Double l1 = barycentric.getFirst();
+                Double l2 = barycentric.get(1);
+                Double l3 = barycentric.getLast();
+
                 boolean paint = true;
                 for (Double l: barycentric){
                     if (Double.compare(l, 0.0) < 0) {
@@ -180,7 +156,7 @@ public class ImageDrawer {
                     }
                 }
                 if(paint){
-                    double zb = p1.getZ()*barycentric.getFirst() + p2.getZ()*barycentric.get(1)+p3.getZ()*barycentric.getLast();
+                    double zb = p1.getZ()*l1 + p2.getZ()*l2+p3.getZ()*l3;
                     if(zBuffer[i][j]<zb)
                         continue;
 
@@ -188,25 +164,17 @@ public class ImageDrawer {
                     Vector3 n2 = face.getNorm(face.getPlg().getSecondVector());
                     Vector3 n3 = face.getNorm(face.getPlg().getThirdVector());
 
-//                    double I1 = n1.scalar(oneZ)/(n1.length() * oneZ.length());
-//                    double I2 = n2.scalar(oneZ)/(n2.length() * oneZ.length());
-//                    double I3 = n3.scalar(oneZ)/(n3.length() * oneZ.length());
+                    Vector3 normal = n1.mult(l1)
+                            .add(n2.mult(l2))
+                            .add(n3.mult(l3));
 
-                    Vector3 normal = n1.mult(barycentric.getFirst()).add(n2.mult(barycentric.get(1))).add(n3.mult(barycentric.getLast()));
-
-                    double cos_angle = normal.scalar(oneZ)/(normal.length() * oneZ.length());
-                    //cos_angle = barycentric.getFirst() * I1 + barycentric.get(1) * I2 + barycentric.getLast() * I3;
-                    //nsm = normal.scalar(oneZ)/(normal.length() * oneZ.length());
-
-
-//                    double I1 = n1.scalar(oneZ);
-//                    double I2 = n2.scalar(oneZ);
-//                    double I3 = n3.scalar(oneZ);
+                    double cos_angle = normal.scalar(lightDirection)/(normal.length() * lightDirection.length());
 
                     double intense = max(0,-255*cos_angle);
                     Color newColor = new Color(abs((int) (intense)), abs((int) (intense)), abs((int) (intense)));
 
-                    img.setRGB(i, j, newColor.getRGB());
+                    graphic.setColor(newColor);
+                    graphic.drawRect(i,j, 1,1);
                     zBuffer[i][j]=zb;
 
                 }
