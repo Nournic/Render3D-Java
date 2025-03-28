@@ -5,6 +5,7 @@ import ru.ssau.tk.nour.image.other.ImageScale;
 import ru.ssau.tk.nour.image.ImageWriter;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -13,34 +14,37 @@ import java.net.URISyntaxException;
 import java.util.Objects;
 
 public class Main {
-    private final static int width = 1000;
-    private final static int height = 1000;
+    private final static int width = 500;
+    private final static int height = 500;
 
     public static void main(String[] args) throws IOException {
-        File file, out;
+        File obj;
+        JFrame frame = new JFrame();
+        JPanel mainPanel = new JPanel(new BorderLayout());
 
         try {
-            file = new File(Objects.requireNonNull(Main.class.getResource("/model_1.obj")).toURI());
+            obj = new File(Objects.requireNonNull(Main.class.getResource("/model_1.obj")).toURI());
         } catch (URISyntaxException e) {
-            throw new RuntimeException("Missing path to obj file");
+            throw new RuntimeException("Missing path to obj obj");
         }
 
         ImageScale imageScale = new ImageScale.Builder()
-                .scaleX(1800).scaleY(1800).shiftX(width/2.0).shiftY(height/2.0).shiftZ(100)
+                .scaleX(900).scaleY(900).shiftX(width/2.0).shiftY(height/2.0)
                 .build();
 
-        ModelRotate rotate = new ModelRotate.Builder()
+        ModelRotate rotate = new ModelRotate.Builder().build();
 
-                .build();
+        ImageWriter writer = new ImageWriter(obj, imageScale, rotate);
 
-        ImageWriter writer = new ImageWriter(file, imageScale, rotate);
-
-        BufferedImage img = writer.getImage(1000,1000);
+        BufferedImage img = writer.getImage(width, height);
         img = createRotated(img);
 
-        out = new File("C:\\Games\\image1.jpg");
-
-        ImageIO.write(img, "jpg", out);
+        JLabel image = new JLabel(new ImageIcon(img));
+        mainPanel.add(image);
+        frame.add(mainPanel);
+        frame.setSize(500, 500);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 
     private static BufferedImage createRotated(BufferedImage image)

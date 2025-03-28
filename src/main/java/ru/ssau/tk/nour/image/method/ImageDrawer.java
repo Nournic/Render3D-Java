@@ -13,7 +13,7 @@ import static java.lang.Math.*;
 import static java.lang.Math.ceil;
 
 public class ImageDrawer {
-    private Model model;
+    private final Model model;
     private final ImageScale imageScale;
     private ModelRotate rotate;
 
