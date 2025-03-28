@@ -25,7 +25,9 @@ public class Model {
                     plg.getSecondVector().add(pivot),
                     plg.getThirdVector().add(pivot)
             ));
-            face.updateOwnersNorms();
+            face.replaceNorm(plg.getFirstVector(), face.getPlg().getFirstVector(), face.getNorm(plg.getFirstVector()));
+            face.replaceNorm(plg.getSecondVector(), face.getPlg().getSecondVector(), face.getNorm(plg.getSecondVector()));
+            face.replaceNorm(plg.getThirdVector(), face.getPlg().getThirdVector(), face.getNorm(plg.getThirdVector()));
 
             newFaces.add(face);
         }
@@ -82,7 +84,9 @@ public class Model {
             face.addNorm(p3, pn3);
 
             face.setPlg(new Polygon(p1, p2, p3));
-            face.updateOwnersNorms();
+            face.replaceNorm(plg.getFirstVector(), face.getPlg().getFirstVector(), face.getNorm(plg.getFirstVector()));
+            face.replaceNorm(plg.getSecondVector(), face.getPlg().getSecondVector(), face.getNorm(plg.getSecondVector()));
+            face.replaceNorm(plg.getThirdVector(), face.getPlg().getThirdVector(), face.getNorm(plg.getThirdVector()));
 
             faces.set(i, face);
             //TODO возможно стоит добавить текстуры

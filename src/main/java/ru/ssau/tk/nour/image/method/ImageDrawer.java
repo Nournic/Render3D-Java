@@ -61,7 +61,6 @@ public class ImageDrawer {
 
         ArrayList<Face> globalFaces = model.getGlobalFaces();
         for (int i = 0; i < globalFaces.size(); i++){
-            Face oldFace = model.getLocalFaces().get(i);
             Face face = globalFaces.get(i);
             Polygon plg = face.getPlg();
             Face projectFace = new Face(new Polygon(
@@ -81,13 +80,13 @@ public class ImageDrawer {
                             imageScale.getScaleZ() * plg.getThirdVector().getZ() + imageScale.getShiftZ()
                     )));
 
-            projectFace.addNorm(projectFace.getPlg().getFirstVector(), face.getNorm(face.getPlg().getFirstVector()));
+            projectFace.addNorm(projectFace.getPlg().getFirstVector(), face.getNorm(plg.getFirstVector()));
             projectFace.addNorm(projectFace.getPlg().getSecondVector(), face.getNorm(plg.getSecondVector()));
             projectFace.addNorm(projectFace.getPlg().getThirdVector(), face.getNorm(plg.getThirdVector()));
 
 
 
-            drawTriangle(img,zBuffer, projectFace, model.getLocalFaces().get(i));
+            drawTriangle(img,zBuffer, projectFace);
         }
 
         return img;
@@ -122,7 +121,7 @@ public class ImageDrawer {
         return newModel;
     }
 
-    private boolean drawTriangle(BufferedImage img, double[][] zBuffer, Face face, Face oldFace){
+    private boolean drawTriangle(BufferedImage img, double[][] zBuffer, Face face){
         Polygon plg = face.getPlg();
 //        Vector3 p1 = new Vector3(
 //                    imageScale.getScaleX() * (plg.getFirstVector().getX() / plg.getFirstVector().getZ()) + imageScale.getShiftX(),
@@ -144,10 +143,6 @@ public class ImageDrawer {
         Vector3 p1 = plg.getFirstVector();
         Vector3 p2 = plg.getSecondVector();
         Vector3 p3 = plg.getThirdVector();
-
-        Vector3 test = oldFace.getPlg().getFirstVector();
-        Vector3 test1 = oldFace.getPlg().getSecondVector();
-        Vector3 test2 = oldFace.getPlg().getThirdVector();
 
         double xmin = min(min(p1.getX(), p2.getX()), p3.getX()) < 0
                 ? 0 : min(min(p1.getX(), p2.getX()), p3.getX());
