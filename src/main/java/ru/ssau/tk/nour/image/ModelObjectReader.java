@@ -3,6 +3,7 @@ package ru.ssau.tk.nour.image;
 import ru.ssau.tk.nour.exceptions.NotObjectFileException;
 import ru.ssau.tk.nour.image.data.Face;
 import ru.ssau.tk.nour.image.data.Model;
+import ru.ssau.tk.nour.image.data.ModelBuilder;
 import ru.ssau.tk.nour.image.data.Polygon;
 import ru.ssau.tk.nour.image.other.Vector3;
 
@@ -33,13 +34,6 @@ public class ModelObjectReader {
         objectModel = obj;
     }
 
-    private ArrayList<Vector3> getVertices(){
-        if(vertices == null)
-            readObjFile();
-
-        return vertices;
-    }
-
     public Model getModel(){
         if(model != null)
             return model;
@@ -50,15 +44,25 @@ public class ModelObjectReader {
         return model;
     }
 
+    public ModelBuilder getModelBuilder(){
+        if(model != null)
+            return new ModelBuilder(faces);
+
+        readObjFile();
+
+        return new ModelBuilder(faces);
+    }
+
     private void readObjFile(){
-        readVertices();
+        readFile();
         readPolygons();
     }
 
-    private void readVertices(){
+    private void readFile(){
         vertices = new ArrayList<>();
         normals = new ArrayList<>();
         textures = new ArrayList<>();
+
         try{
             FileReader reader = new FileReader(objectModel);
             BufferedReader br = new BufferedReader(reader);
@@ -134,11 +138,6 @@ public class ModelObjectReader {
                     newFace.addTexture(polygon.getFirstVector(), textures.get(texture[0] - 1));
                     newFace.addTexture(polygon.getSecondVector(), textures.get(texture[1] - 1));
                     newFace.addTexture(polygon.getThirdVector(), textures.get(texture[2] - 1));
-
-                    if(Double.compare(textures.get(texture[0] - 1).getX(), 0.680486) == 0 & Double.compare(textures.get(texture[0] - 1).getY(), 0.197526) == 0)
-                    {
-                        System.out.println(123);
-                    }
 
                     faces.add(newFace);
                 }

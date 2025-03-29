@@ -6,7 +6,6 @@ import ru.ssau.tk.nour.image.method.ImageDrawer;
 import ru.ssau.tk.nour.image.method.ImageSceneDrawer;
 import ru.ssau.tk.nour.image.other.*;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;

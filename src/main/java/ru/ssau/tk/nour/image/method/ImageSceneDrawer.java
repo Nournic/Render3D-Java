@@ -36,30 +36,13 @@ public class ImageSceneDrawer implements Drawer {
         for (int i = 0; i < img.getHeight(); i++)
             graphics.drawRect(0,0, img.getWidth(), i);
 
-        //int i = 1;
-        //double n = 2*Math.PI/scene.getModels().size();
-        //double nt = 0;
-        Vector3 mov = new Vector3(125, 0, 0);
-        for(int i = 0; i < 2; i++){
-            Model model = scene.getModels().get(i);
-            if(i == 1)
-                model.scale(100);
-            else {model.scale(1800);model.move(new Vector3(0,-100,0));}
-
-            model.move(new Vector3(250,250,0));
-            model.rotate(0, Math.PI,0);
-            model.move(mov);
-            mov = mov.mult(-1);
-
-
-            //  model.move(new Vector3(125*Math.sin(nt), 125*Math.cos(nt), 0));
-          //  model.rotate(0,0, -2*Math.PI + nt);
-           // nt+=n;
+        for(Model model: scene.getModels()) {
             ArrayList<Face> globalFaces = model.getGlobalFaces();
             for (Face face : globalFaces) {
                 drawTriangle(graphics, zBuffer, face, model.getTexture());
             }
         }
+
         graphics.dispose();
 
         return img;
@@ -154,13 +137,5 @@ public class ImageSceneDrawer implements Drawer {
         result.add(lambda2);
 
         return result;
-    }
-
-    private static double getVectorMult(double x0, double y0, double z0, double x1, double y1, double z1){
-        return x0*x1+y0*y1+z0*z1;
-    }
-
-    private static double getNorm(double x0, double y0, double z0){
-        return Math.sqrt(Math.pow(x0,2)+Math.pow(y0,2)+Math.pow(z0,2));
     }
 }

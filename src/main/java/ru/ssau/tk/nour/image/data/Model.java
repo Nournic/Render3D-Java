@@ -1,8 +1,6 @@
 package ru.ssau.tk.nour.image.data;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import ru.ssau.tk.nour.image.other.Matrix3;
 import ru.ssau.tk.nour.image.other.Vector3;
@@ -28,21 +26,21 @@ public class Model {
 
         for(Face face: faces){
             Polygon plg = face.getPlg();
-            face.setPlg(new Polygon(
+            Face newFace = new Face(new Polygon(
                     plg.getFirstVector().add(pivot),
                     plg.getSecondVector().add(pivot),
                     plg.getThirdVector().add(pivot)
             ));
 
-            face.replaceNorm(plg.getFirstVector(), face.getPlg().getFirstVector(), face.getNorm(plg.getFirstVector()));
-            face.replaceNorm(plg.getSecondVector(), face.getPlg().getSecondVector(), face.getNorm(plg.getSecondVector()));
-            face.replaceNorm(plg.getThirdVector(), face.getPlg().getThirdVector(), face.getNorm(plg.getThirdVector()));
+            newFace.addNorm(newFace.getPlg().getFirstVector(), face.getNorm(plg.getFirstVector()));
+            newFace.addNorm(newFace.getPlg().getSecondVector(), face.getNorm(plg.getSecondVector()));
+            newFace.addNorm(newFace.getPlg().getThirdVector(), face.getNorm(plg.getThirdVector()));
 
-            face.replaceTexture(plg.getFirstVector(), face.getPlg().getFirstVector(), face.getTexture(plg.getFirstVector()));
-            face.replaceTexture(plg.getSecondVector(), face.getPlg().getSecondVector(), face.getTexture(plg.getSecondVector()));
-            face.replaceTexture(plg.getThirdVector(), face.getPlg().getThirdVector(), face.getTexture(plg.getThirdVector()));
+            newFace.addTexture(newFace.getPlg().getFirstVector(), face.getTexture(plg.getFirstVector()));
+            newFace.addTexture(newFace.getPlg().getSecondVector(), face.getTexture(plg.getSecondVector()));
+            newFace.addTexture(newFace.getPlg().getThirdVector(), face.getTexture(plg.getThirdVector()));
 
-            newFaces.add(face);
+            newFaces.add(newFace);
         }
 
         return newFaces;
@@ -109,6 +107,10 @@ public class Model {
 
     public void move(Vector3 move){
         pivot = pivot.add(move);
+    }
+
+    public void move(double x, double y, double z){
+        pivot = pivot.add(new Vector3(x,y,z));
     }
 
     public void scale(double alpha){
