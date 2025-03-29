@@ -2,18 +2,26 @@ package ru.ssau.tk.nour.image.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import ru.ssau.tk.nour.image.other.Matrix3;
 import ru.ssau.tk.nour.image.other.Vector3;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-@AllArgsConstructor
 public class Model {
-    private ArrayList<Face> faces;
+    private final ArrayList<Face> faces;
+    @Getter
+    private Vector3 pivot;
     @Getter
     @Setter
-    private Vector3 pivot;
+    private BufferedImage texture;
+
+    public Model(ArrayList<Face> faces, Vector3 pivot){
+        this.pivot = pivot;
+        this.faces = faces;
+    }
 
     public ArrayList<Face> getGlobalFaces(){
         ArrayList<Face> newFaces = new ArrayList<>();

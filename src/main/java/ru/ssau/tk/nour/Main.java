@@ -11,6 +11,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class Main {
@@ -18,12 +19,13 @@ public class Main {
     private final static int height = 500;
 
     public static void main(String[] args) throws IOException {
-        File obj;
+        File obj, obj1;
         JFrame frame = new JFrame();
         JPanel mainPanel = new JPanel(new BorderLayout());
 
         try {
             obj = new File(Objects.requireNonNull(Main.class.getResource("/model_1.obj")).toURI());
+            obj1 =new File(Objects.requireNonNull(Main.class.getResource("/model.obj")).toURI());
         } catch (URISyntaxException e) {
             throw new RuntimeException("Missing path to obj obj");
         }
@@ -32,12 +34,20 @@ public class Main {
                 .scaleX(900).scaleY(900).shiftX(width/2.0).shiftY(height/2.0)
                 .build();
 
-
+        ArrayList<BufferedImage> textures = new ArrayList<>();
+        ArrayList<File> files = new ArrayList<>();
 
         ModelRotate rotate = new ModelRotate.Builder().beta(Math.PI).build();
 
         BufferedImage texture = ImageIO.read(new File("C:\\Games\\bunny_texture.jpg"));
-        ImageWriter writer = new ImageWriter(obj, imageScale, rotate, texture);
+        BufferedImage texture1 = ImageIO.read(new File("C:\\Games\\model.bmp"));
+
+        files.add(obj); files.add(obj1);
+        textures.add(texture); textures.add(texture1);
+
+        //ImageWriter writer = new ImageWriter(obj, imageScale, rotate, texture);
+        ImageWriter writer = new ImageWriter(files, textures);
+
 
         BufferedImage img = writer.getImage(width, height);
         img = createRotated(img);

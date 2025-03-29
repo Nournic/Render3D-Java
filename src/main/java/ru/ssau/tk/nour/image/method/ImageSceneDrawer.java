@@ -10,23 +10,16 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import static java.lang.Math.*;
-import static java.lang.Math.ceil;
 
-public class ImageDrawer implements Drawer {
-    private final Model model;
-    private final ImageScale imageScale;
-    private ModelRotate rotate;
+public class ImageSceneDrawer implements Drawer {
+    private final Scene scene;
     private BufferedImage img;
 
-    public ImageDrawer(Model model, ImageScale imageScale) {
-        this.model = model;
-        this.imageScale = imageScale;
-    }
+    private int width;
+    private int height;
 
-    public ImageDrawer(Model model, ImageScale imageScale, ModelRotate transform) {
-        this(model, imageScale);
-
-        this.rotate = transform;
+    public ImageSceneDrawer(Scene scene) {
+        this.scene = scene;
     }
 
     public BufferedImage draw(int width, int height) {
@@ -38,64 +31,42 @@ public class ImageDrawer implements Drawer {
             }
         }
 
-        ImageShift shift = new ImageShift(0, -0.04, 0.2);
-
-        if(rotate != null)
-            model.rotate(
-                    rotate.getAlpha(),
-                    rotate.getBeta(),
-                    rotate.getGamma()
-            );
-
-        model.move(new Vector3(
-                shift.getShiftX(),
-                shift.getShiftY(),
-                shift.getShiftZ()
-        ));
-
         Graphics2D graphics = (Graphics2D) img.getGraphics();
         graphics.setColor(Color.cyan);
-        for (int i = 0; i < img.getHeight(); i++) {
+        for (int i = 0; i < img.getHeight(); i++)
             graphics.drawRect(0,0, img.getWidth(), i);
-        }
 
-        ArrayList<Face> globalFaces = model.getGlobalFaces();
-        for (Face face : globalFaces) {
-            Polygon plg = face.getPlg();
-            Face projectFace = new Face(new Polygon(
-                    new Vector3(
-                            imageScale.getScaleX() * (plg.getFirstVector().getX() / plg.getFirstVector().getZ()) + imageScale.getShiftX(),
-                            imageScale.getScaleY() * (plg.getFirstVector().getY() / plg.getFirstVector().getZ()) + imageScale.getShiftY(),
-                            imageScale.getScaleZ() * plg.getFirstVector().getZ() + imageScale.getShiftZ()
-                    ),
-                    new Vector3(
-                            imageScale.getScaleX() * (plg.getSecondVector().getX() / plg.getSecondVector().getZ()) + imageScale.getShiftX(),
-                            imageScale.getScaleY() * (plg.getSecondVector().getY() / plg.getSecondVector().getZ()) + imageScale.getShiftY(),
-                            imageScale.getScaleZ() * plg.getSecondVector().getZ() + imageScale.getShiftZ()
-                    ),
-                    new Vector3(
-                            imageScale.getScaleX() * (plg.getThirdVector().getX() / plg.getThirdVector().getZ()) + imageScale.getShiftX(),
-                            imageScale.getScaleY() * (plg.getThirdVector().getY() / plg.getThirdVector().getZ()) + imageScale.getShiftY(),
-                            imageScale.getScaleZ() * plg.getThirdVector().getZ() + imageScale.getShiftZ()
-                    )));
-            projectFace.addNorm(projectFace.getPlg().getFirstVector(), face.getNorm(plg.getFirstVector()));
-            projectFace.addNorm(projectFace.getPlg().getSecondVector(), face.getNorm(plg.getSecondVector()));
-            projectFace.addNorm(projectFace.getPlg().getThirdVector(), face.getNorm(plg.getThirdVector()));
+        //int i = 1;
+        //double n = 2*Math.PI/scene.getModels().size();
+        //double nt = 0;
+        Vector3 mov = new Vector3(125, 0, 0);
+        for(int i = 0; i < 2; i++){
+            Model model = scene.getModels().get(i);
+            if(i == 1)
+                model.scale(100);
+            else {model.scale(1800);model.move(new Vector3(0,-100,0));}
 
-            projectFace.addTexture(projectFace.getPlg().getFirstVector(), face.getTexture(plg.getFirstVector()));
-            projectFace.addTexture(projectFace.getPlg().getSecondVector(), face.getTexture(plg.getSecondVector()));
-            projectFace.addTexture(projectFace.getPlg().getThirdVector(), face.getTexture(plg.getThirdVector()));
+            model.move(new Vector3(250,250,0));
+            model.rotate(0, Math.PI,0);
+            model.move(mov);
+            mov = mov.mult(-1);
 
-            drawTriangle(graphics, zBuffer, projectFace);
+
+            //  model.move(new Vector3(125*Math.sin(nt), 125*Math.cos(nt), 0));
+          //  model.rotate(0,0, -2*Math.PI + nt);
+           // nt+=n;
+            ArrayList<Face> globalFaces = model.getGlobalFaces();
+            for (Face face : globalFaces) {
+                drawTriangle(graphics, zBuffer, face, model.getTexture());
+            }
         }
         graphics.dispose();
 
         return img;
     }
 
-    private void drawTriangle(Graphics2D graphic, double[][] zBuffer, Face face){
+    private boolean drawTriangle(Graphics2D graphic, double[][] zBuffer, Face face, BufferedImage texture){
         Polygon plg = face.getPlg();
-        BufferedImage texture = model.getTexture();
 
         Vector3 p1 = plg.getFirstVector();
         Vector3 p2 = plg.getSecondVector();
@@ -167,6 +138,7 @@ public class ImageDrawer implements Drawer {
                 }
             }
         }
+        return true;
     }
 
     private static ArrayList<Double> evaluateBarycentricCoordinates(int x, int y, double x0, double y0, double x1, double y1, double x2, double y2){
