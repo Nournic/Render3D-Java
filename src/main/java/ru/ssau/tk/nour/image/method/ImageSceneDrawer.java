@@ -8,28 +8,31 @@ import ru.ssau.tk.nour.image.other.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static java.lang.Math.*;
 
 public class ImageSceneDrawer implements Drawer {
     private final Scene scene;
     private BufferedImage img;
+    private static final Vector3 lightDirection = new Vector3(0,0,1);
 
     private int width;
     private int height;
 
     public ImageSceneDrawer(Scene scene) {
         this.scene = scene;
+
+
     }
 
     public BufferedImage draw(int width, int height) {
+        this.width = width;
+        this.height = height;
         img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        double[][] zBuffer = new double[1000][1000];
-        for (int i = 0; i < 1000; i++) {
-            for (int j = 0; j < 1000; j++) {
-                zBuffer[i][j] = Double.MAX_VALUE;
-            }
-        }
+
+        double[] zBuffer = new double[1000*1000];
+        Arrays.fill(zBuffer, Double.POSITIVE_INFINITY);
 
         Graphics2D graphics = (Graphics2D) img.getGraphics();
         graphics.setColor(Color.cyan);
@@ -48,7 +51,7 @@ public class ImageSceneDrawer implements Drawer {
         return img;
     }
 
-    private boolean drawTriangle(Graphics2D graphic, double[][] zBuffer, Face face, BufferedImage texture){
+    private boolean drawTriangle(Graphics2D graphic, double[] zBuffer, Face face, BufferedImage texture){
         Polygon plg = face.getPlg();
 
         Vector3 p1 = plg.getFirstVector();
@@ -65,7 +68,6 @@ public class ImageSceneDrawer implements Drawer {
         ymin = ymin < 0 ? 0 : ymin;
         ymax = ymax > img.getHeight() ? img.getHeight() : ymax;
 
-        Vector3 lightDirection = new Vector3(0,0,1);
 
         for (int i = (int)floor(xmin); i < (int)ceil(xmax); i++) {
             for (int j = (int)floor(ymin); j < (int)ceil(ymax); j++) {
@@ -83,7 +85,7 @@ public class ImageSceneDrawer implements Drawer {
                 }
                 if(paint){
                     double zb = p1.getZ()*l1 + p2.getZ()*l2+p3.getZ()*l3;
-                    if(zBuffer[i][j]<zb)
+                    if(zBuffer[1000*i+j]<zb)
                         continue;
 
                     Vector3 n1 = face.getNorm(p1);
@@ -113,10 +115,9 @@ public class ImageSceneDrawer implements Drawer {
                         newColor = new Color(red, green, blue);
                     }
 
-
                     graphic.setColor(newColor);
                     graphic.drawRect(i,j, 1,1);
-                    zBuffer[i][j]=zb;
+                    zBuffer[1000*i+j]=zb;
 
                 }
             }
