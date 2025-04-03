@@ -38,7 +38,7 @@ public class ImageDrawer implements Drawer {
             }
         }
 
-        ImageShift shift = new ImageShift(0, -0.04, 0.2);
+        ImageShift shift = new ImageShift(0, -1, 5);
 
         if(rotate != null)
             model.rotate(
@@ -182,13 +182,5 @@ public class ImageDrawer implements Drawer {
         result.add(lambda2);
 
         return result;
-    }
-
-    private static double getVectorMult(double x0, double y0, double z0, double x1, double y1, double z1){
-        return x0*x1+y0*y1+z0*z1;
-    }
-
-    private static double getNorm(double x0, double y0, double z0){
-        return Math.sqrt(Math.pow(x0,2)+Math.pow(y0,2)+Math.pow(z0,2));
     }
 }

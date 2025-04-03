@@ -15,51 +15,42 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Main {
-    private final static int width = 500;
-    private final static int height = 500;
+    private final static int width = 1000;
+    private final static int height = 1000;
 
     public static void main(String[] args) throws IOException {
-        File obj, obj1;
+        File obj;
+        BufferedImage texture;
         JFrame frame = new JFrame();
         JPanel mainPanel = new JPanel(new BorderLayout());
 
         try {
-            obj = new File(Objects.requireNonNull(Main.class.getResource("/model_1.obj")).toURI());
-            obj1 =new File(Objects.requireNonNull(Main.class.getResource("/model.obj")).toURI());
+            obj = new File(Objects.requireNonNull(Main.class.getResource("/frog.obj")).toURI());
+            texture = ImageIO.read(
+                    new File(Objects.requireNonNull(Main.class.getResource("/textures/frog_texture.jpg")).toURI())
+            );
         } catch (URISyntaxException e) {
-            throw new RuntimeException("Missing path to obj obj");
+            throw new RuntimeException("Error in loading files of models or textures");
         }
 
         ImageScale imageScale = new ImageScale.Builder()
-                .scaleX(900).scaleY(900).shiftX(width/2.0).shiftY(height/2.0)
+                .scaleX(400).scaleY(400).shiftX(width/2.0).shiftY(height/2.0)
                 .build();
 
-        ArrayList<BufferedImage> textures = new ArrayList<>();
-        ArrayList<File> files = new ArrayList<>();
-
-        ModelRotate rotate = new ModelRotate.Builder().beta(Math.PI).build();
-
-        BufferedImage texture = ImageIO.read(new File("C:\\Games\\bunny_texture.jpg"));
-        BufferedImage texture1 = ImageIO.read(new File("C:\\Games\\model.bmp"));
-
-        files.add(obj); files.add(obj1);
-        textures.add(texture); textures.add(texture1);
-
-        //ImageWriter writer = new ImageWriter(obj, imageScale, rotate, texture);
-        ImageWriter writer = new ImageWriter(files, textures);
-
+        ModelRotate rotate = new ModelRotate.Builder().beta(Math.PI).alpha(-Math.PI/2 + Math.PI/5).build();
+        ImageWriter writer = new ImageWriter(obj, imageScale, rotate, texture);
 
         BufferedImage img = writer.getImage(width, height);
         img = createRotated(img);
 
+        ImageIO.write(img, "jpg", new File("C:\\Games\\Models\\model.jpg"));
+
         JLabel image = new JLabel(new ImageIcon(img));
         mainPanel.add(image);
         frame.add(mainPanel);
-        frame.setSize(500, 500);
+        frame.setSize(1000, 1000);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-
-        ImageIO.write(img, "jpg", new File("C:\\Games\\image3.jpg"));
     }
 
     private static BufferedImage createRotated(BufferedImage image)

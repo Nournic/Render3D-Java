@@ -29,18 +29,22 @@ public class GIFMain {
 
     public static void main(String[] args) throws IOException {
         File model_obj1, model_obj2;
+        BufferedImage texture, texture1;
         JFrame frame = new JFrame();
         JPanel mainPanel = new JPanel(new BorderLayout());
 
         try {
             model_obj1 = new File(Objects.requireNonNull(Main.class.getResource("/model_1.obj")).toURI());
-            model_obj2 =new File(Objects.requireNonNull(Main.class.getResource("/model.obj")).toURI());
+            model_obj2 = new File(Objects.requireNonNull(Main.class.getResource("/frog.obj")).toURI());
+            texture = ImageIO.read(
+                    new File(Objects.requireNonNull(Main.class.getResource("/textures/bunny-atlas.jpg")).toURI())
+            );
+            texture1 = ImageIO.read(
+                    new File(Objects.requireNonNull(Main.class.getResource("/textures/frog_texture.jpg")).toURI())
+            );
         } catch (URISyntaxException e) {
             throw new RuntimeException("Missing path to obj obj");
         }
-
-        BufferedImage texture = ImageIO.read(new File("C:\\Games\\bunny_texture.jpg"));
-        BufferedImage texture1 = ImageIO.read(new File("C:\\Games\\model.bmp"));
 
         ArrayList<Model> models = new ArrayList<>();
 
@@ -59,7 +63,7 @@ public class GIFMain {
                 .setTexture(texture1)
                 .move(250,250,0).move(150,0,0)
                 .rotate(0,3*Math.PI/4,0)
-                .scale(150)
+                .scale(50)
                 .build();
         models.add(model);
 
