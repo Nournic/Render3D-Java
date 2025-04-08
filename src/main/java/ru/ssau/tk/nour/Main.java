@@ -48,7 +48,7 @@ public class Main {
         JLabel image = new JLabel(new ImageIcon(img));
         mainPanel.add(image);
         frame.add(mainPanel);
-        frame.setSize(1000, 1000);
+        frame.setSize(width, height);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
