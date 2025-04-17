@@ -1,7 +1,7 @@
 package ru.ssau.tk.nour;
 
 import ru.ssau.tk.nour.image.other.ModelRotate;
-import ru.ssau.tk.nour.image.other.ImageScale;
+import ru.ssau.tk.nour.image.other.ProjectScale;
 import ru.ssau.tk.nour.image.ImageWriter;
 
 import javax.imageio.ImageIO;
@@ -11,12 +11,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Objects;
 
 public class Main {
-    private final static int width = 1000;
-    private final static int height = 1000;
+    private final static int width = 500;
+    private final static int height = 500;
 
     public static void main(String[] args) throws IOException {
         File obj;
@@ -33,12 +32,12 @@ public class Main {
             throw new RuntimeException("Error in loading files of models or textures");
         }
 
-        ImageScale imageScale = new ImageScale.Builder()
+        ProjectScale projectScale = new ProjectScale.Builder()
                 .scaleX(400).scaleY(400).shiftX(width/2.0).shiftY(height/2.0)
                 .build();
 
         ModelRotate rotate = new ModelRotate.Builder().beta(Math.PI).alpha(-Math.PI/2 + Math.PI/5).build();
-        ImageWriter writer = new ImageWriter(obj, imageScale, rotate, texture);
+        ImageWriter writer = new ImageWriter(obj, projectScale, rotate, texture);
 
         BufferedImage img = writer.getImage(width, height);
         img = createRotated(img);

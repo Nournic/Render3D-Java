@@ -2,7 +2,7 @@ package ru.ssau.tk.nour.image.data;
 
 import lombok.Getter;
 import lombok.Setter;
-import ru.ssau.tk.nour.image.other.ImageScale;
+import ru.ssau.tk.nour.image.other.ProjectScale;
 
 @Setter
 @Getter
@@ -29,7 +29,7 @@ public class Point3D {
      * @param point копируемая точка
      * @param scale объект типа <code>ImageScale</code>, задающий смещение и масштабирование точки
      */
-    public Point3D(Point3D point, ImageScale scale){
+    public Point3D(Point3D point, ProjectScale scale){
         this.x = scale.getScaleX() * (point.x / point.z) + scale.getShiftX();
         this.y = scale.getScaleY() * (point.y / point.z) + scale.getShiftY();
         this.z = scale.getScaleZ() * (point.z) + scale.getShiftZ();

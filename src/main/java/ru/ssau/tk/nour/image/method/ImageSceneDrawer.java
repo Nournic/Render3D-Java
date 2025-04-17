@@ -9,11 +9,13 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static java.lang.Math.*;
 
 public class ImageSceneDrawer implements Drawer {
     private final Scene scene;
+    private final ProjectScale projectScale;
     private BufferedImage img;
     private static final Vector3 lightDirection = new Vector3(0,0,1);
 
@@ -22,8 +24,12 @@ public class ImageSceneDrawer implements Drawer {
 
     public ImageSceneDrawer(Scene scene) {
         this.scene = scene;
+        this.projectScale = new ProjectScale.Builder().build();
+    }
 
-
+    public ImageSceneDrawer(Scene scene, ProjectScale projectScale) {
+        this.scene = scene;
+        this.projectScale = projectScale;
     }
 
     public BufferedImage draw(int width, int height) {
@@ -31,27 +37,61 @@ public class ImageSceneDrawer implements Drawer {
         this.height = height;
         img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
-        double[] zBuffer = new double[1000*1000];
+        double[] zBuffer = new double[width*height];
         Arrays.fill(zBuffer, Double.POSITIVE_INFINITY);
 
         Graphics2D graphics = (Graphics2D) img.getGraphics();
-        graphics.setColor(Color.cyan);
-        for (int i = 0; i < img.getHeight(); i++)
+        graphics.setColor(Objects.requireNonNullElse(scene.getBackgroundColor(), Color.BLACK));
+        for (int i = 0; i < img.getHeight(); i++) {
             graphics.drawRect(0,0, img.getWidth(), i);
+        }
 
         for(Model model: scene.getModels()) {
             ArrayList<Face> globalFaces = model.getGlobalFaces();
             for (Face face : globalFaces) {
-                drawTriangle(graphics, zBuffer, face, model.getTexture());
+                Face projectFace;
+                if(projectScale != null)
+                    projectFace = projectFace(face);
+                else
+                    projectFace = face;
+                drawTriangle(graphics, zBuffer, projectFace, model.getTexture());
             }
         }
-
         graphics.dispose();
-
         return img;
     }
 
-    private boolean drawTriangle(Graphics2D graphic, double[] zBuffer, Face face, BufferedImage texture){
+    private Face projectFace(Face oldFace){
+        Polygon plg = oldFace.getPlg();
+        Face projectFace = new Face(new Polygon(
+                new Vector3(
+                        projectScale.getScaleX() * (plg.getFirstVector().getX() / plg.getFirstVector().getZ()) + projectScale.getShiftX(),
+                        projectScale.getScaleY() * (plg.getFirstVector().getY() / plg.getFirstVector().getZ()) + projectScale.getShiftY(),
+                        projectScale.getScaleZ() * plg.getFirstVector().getZ() + projectScale.getShiftZ()
+                ),
+                new Vector3(
+                        projectScale.getScaleX() * (plg.getSecondVector().getX() / plg.getSecondVector().getZ()) + projectScale.getShiftX(),
+                        projectScale.getScaleY() * (plg.getSecondVector().getY() / plg.getSecondVector().getZ()) + projectScale.getShiftY(),
+                        projectScale.getScaleZ() * plg.getSecondVector().getZ() + projectScale.getShiftZ()
+                ),
+                new Vector3(
+                        projectScale.getScaleX() * (plg.getThirdVector().getX() / plg.getThirdVector().getZ()) + projectScale.getShiftX(),
+                        projectScale.getScaleY() * (plg.getThirdVector().getY() / plg.getThirdVector().getZ()) + projectScale.getShiftY(),
+                        projectScale.getScaleZ() * plg.getThirdVector().getZ() + projectScale.getShiftZ()
+                )));
+
+        projectFace.addNorm(projectFace.getPlg().getFirstVector(), oldFace.getNorm(plg.getFirstVector()));
+        projectFace.addNorm(projectFace.getPlg().getSecondVector(), oldFace.getNorm(plg.getSecondVector()));
+        projectFace.addNorm(projectFace.getPlg().getThirdVector(), oldFace.getNorm(plg.getThirdVector()));
+
+        projectFace.addTexture(projectFace.getPlg().getFirstVector(), oldFace.getTexture(plg.getFirstVector()));
+        projectFace.addTexture(projectFace.getPlg().getSecondVector(), oldFace.getTexture(plg.getSecondVector()));
+        projectFace.addTexture(projectFace.getPlg().getThirdVector(), oldFace.getTexture(plg.getThirdVector()));
+
+        return projectFace;
+    }
+
+    private void drawTriangle(Graphics2D graphic, double[] zBuffer, Face face, BufferedImage texture){
         Polygon plg = face.getPlg();
 
         Vector3 p1 = plg.getFirstVector();
@@ -85,7 +125,7 @@ public class ImageSceneDrawer implements Drawer {
                 }
                 if(paint){
                     double zb = p1.getZ()*l1 + p2.getZ()*l2+p3.getZ()*l3;
-                    if(zBuffer[1000*i+j]<zb)
+                    if(zBuffer[img.getWidth()*i+j]<zb)
                         continue;
 
                     Vector3 n1 = face.getNorm(p1);
@@ -117,12 +157,11 @@ public class ImageSceneDrawer implements Drawer {
 
                     graphic.setColor(newColor);
                     graphic.drawRect(i,j, 1,1);
-                    zBuffer[1000*i+j]=zb;
+                    zBuffer[img.getWidth()*i+j]=zb;
 
                 }
             }
         }
-        return true;
     }
 
     private static ArrayList<Double> evaluateBarycentricCoordinates(int x, int y, double x0, double y0, double x1, double y1, double x2, double y2){

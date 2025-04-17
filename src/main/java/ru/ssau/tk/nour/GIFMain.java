@@ -3,7 +3,9 @@ package ru.ssau.tk.nour;
 import ru.ssau.tk.nour.image.ModelObjectReader;
 import ru.ssau.tk.nour.image.data.Model;
 import ru.ssau.tk.nour.image.method.ImageSceneDrawer;
+import ru.ssau.tk.nour.image.other.ProjectScale;
 import ru.ssau.tk.nour.image.other.Scene;
+import ru.ssau.tk.nour.image.other.Vector3;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -12,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -48,35 +51,47 @@ public class GIFMain {
 
         ArrayList<Model> models = new ArrayList<>();
 
-        // Настройка модели
-        Model model = new ModelObjectReader(model_obj1).getModelBuilder()
-                .setTexture(texture)
-                .move(250,250,0)
-                .move(-50,0,0)
-                .rotate(Math.PI/4, 0, 0)
-                .scale(1800)
+        // Настройка модели: Лягушка
+        Model model = new ModelObjectReader(model_obj2).getModelBuilder()
+                .setTexture(texture1)
+                .move(0,-1,5)
+                .scale(0.7)
+                .rotate(90, 0, 180)
                 .build();
         models.add(model);
 
-        // Настройка модели
-        model = new ModelObjectReader(model_obj2).getModelBuilder()
-                .setTexture(texture1)
-                .move(250,250,0).move(150,0,0)
-                .rotate(0,3*Math.PI/4,0)
-                .scale(50)
+        // Настройка модели: Заяц
+        model = new ModelObjectReader(model_obj1).getModelBuilder()
+                .setTexture(texture)
+                .move(1,-1, 5)
+                .scale(30)
+                .rotate(new Vector3(0,10,0), Math.PI)
+//                .rotate(0,180,0)
                 .build();
         models.add(model);
 
         scene = new Scene(models);
-        ImageSceneDrawer drawer = new ImageSceneDrawer(scene);
+        scene.setBackgroundColor(Color.cyan);
+
+        ProjectScale projectScale = new ProjectScale.Builder()
+                .scaleX(400).scaleY(400)
+                .shiftX(width/2.0).shiftY(height/2.0)
+                .build();
+
+        ImageSceneDrawer drawer = new ImageSceneDrawer(scene, projectScale);
         BufferedImage img = drawer.draw(width, height);
 
-        img = createRotated(img);
+        AffineTransform tx=AffineTransform.getScaleInstance(1.0,-1.0);  //scaling
+        tx.translate(0,-img.getHeight());  //translating
+        AffineTransformOp tr = new AffineTransformOp(tx,null);  //transforming
 
+        img = tr.filter(img, null);
+        //img = createRotated(img);
+        ImageIO.write(img, "jpg", new File("C:\\Games\\Models\\model.jpg"));
         image = new JLabel(new ImageIcon(img));
         mainPanel.add(image);
         frame.add(mainPanel);
-        frame.setSize(500, 500);
+        frame.setSize(width, height);
         frame.setLocationRelativeTo(null);
 
         frame.addMouseListener(new MouseAdapter() {
@@ -128,6 +143,8 @@ public class GIFMain {
         g.transform(at);
         g.drawImage(image, 0, 0, null);
         g.dispose();
+
+
         return newImage;
     }
 }

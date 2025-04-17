@@ -3,7 +3,7 @@ package ru.ssau.tk.nour.image.other;
 import lombok.Data;
 
 @Data
-public class ImageScale {
+public class ProjectScale {
     private final double shiftX;
     private final double shiftY;
     private final double shiftZ;
@@ -16,7 +16,7 @@ public class ImageScale {
     private final double shiftPointY;
     private final double shiftPointZ;
 
-    private ImageScale(Builder builder){
+    private ProjectScale(Builder builder){
         this.shiftX = builder.shiftX;
         this.shiftY = builder.shiftY;
         this.shiftZ = builder.shiftZ;
@@ -82,8 +82,8 @@ public class ImageScale {
             return this;
         }
 
-        public ImageScale build(){
-            return new ImageScale(this);
+        public ProjectScale build(){
+            return new ProjectScale(this);
         }
     }
 }

@@ -13,16 +13,16 @@ import java.util.ArrayList;
 public class ImageWriter {
     private final Drawer methodDraw;
 
-    public ImageWriter(File pathToObject, ImageScale imageScale) {
+    public ImageWriter(File pathToObject, ProjectScale projectScale) {
         ModelObjectReader objectReader = new ModelObjectReader(pathToObject);
-        methodDraw = new ImageDrawer(objectReader.getModel(), imageScale);
+        methodDraw = new ImageDrawer(objectReader.getModel(), projectScale);
     }
 
-    public ImageWriter(File pathToObject, ImageScale imageScale, ModelRotate transform, BufferedImage texture) {
+    public ImageWriter(File pathToObject, ProjectScale projectScale, ModelRotate transform, BufferedImage texture) {
         ModelObjectReader objectReader = new ModelObjectReader(pathToObject);
         Model model = objectReader.getModel();
         model.setTexture(texture);
-        methodDraw = new ImageDrawer(model, imageScale, transform);
+        methodDraw = new ImageDrawer(model, projectScale, transform);
     }
 
     public ImageWriter(ArrayList<File> pathsToObjects, ArrayList<BufferedImage> textures){

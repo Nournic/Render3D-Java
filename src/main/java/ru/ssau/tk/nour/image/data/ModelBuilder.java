@@ -1,5 +1,6 @@
 package ru.ssau.tk.nour.image.data;
 
+import ru.ssau.tk.nour.image.other.Quaternion;
 import ru.ssau.tk.nour.image.other.Vector3;
 
 import java.awt.image.BufferedImage;
@@ -14,6 +15,16 @@ public class ModelBuilder {
 
     public ModelBuilder rotate(double alpha, double beta, double gamma){
         model.rotate(alpha, beta, gamma);
+        return this;
+    }
+
+    public ModelBuilder rotate(int alpha, int beta, int gamma){
+        model.rotate(Math.toRadians(alpha), Math.toRadians(beta), Math.toRadians(gamma));
+        return this;
+    }
+
+    public ModelBuilder rotate(Vector3 rotateVector, double rotateAngle){
+        model.rotate(rotateVector, rotateAngle);
         return this;
     }
 

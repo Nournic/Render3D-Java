@@ -3,6 +3,7 @@ package ru.ssau.tk.nour.image.data;
 import lombok.Getter;
 import lombok.Setter;
 import ru.ssau.tk.nour.image.other.Matrix3;
+import ru.ssau.tk.nour.image.other.Quaternion;
 import ru.ssau.tk.nour.image.other.Vector3;
 
 import java.awt.image.BufferedImage;
@@ -48,6 +49,54 @@ public class Model {
 
     public ArrayList<Face> getLocalFaces(){
         return faces;
+    }
+
+    private Vector3 rotateVector(Quaternion q, Vector3 v){
+        Quaternion t = q.mult(v).mult(q.conj());
+
+        return new Vector3(t.getI(), t.getJ(), t.getK());
+    }
+
+    public void rotate(Vector3 rotateVector, double rotateAngle){
+        rotateVector = rotateVector.mult(1.0/rotateVector.length());
+        Quaternion q = new Quaternion(Math.cos(rotateAngle/2.0),
+                rotateVector.getX() * Math.sin(rotateAngle/2.0),
+                rotateVector.getY() * Math.sin(rotateAngle/2.0),
+                rotateVector.getZ() * Math.sin(rotateAngle/2.0));
+
+        for(int i = 0; i < faces.size(); i++){
+            Face face = faces.get(i);
+
+            Polygon plg = face.getPlg();
+
+            Vector3 pt1 = face.getTexture(plg.getFirstVector());
+            Vector3 pt2 = face.getTexture(plg.getSecondVector());
+            Vector3 pt3 = face.getTexture(plg.getThirdVector());
+
+            Vector3 p1 = plg.getFirstVector();
+            Vector3 p2 = plg.getSecondVector();
+            Vector3 p3 = plg.getThirdVector();
+
+            Vector3 pn1 = rotateVector(q, face.getNorm(p1));
+            Vector3 pn2 = rotateVector(q, face.getNorm(p2));
+            Vector3 pn3 = rotateVector(q, face.getNorm(p3));
+
+            p1 = rotateVector(q, p1);
+            p2 = rotateVector(q, p2);
+            p3 = rotateVector(q, p3);
+
+            face.setPlg(new Polygon(p1, p2, p3));
+            face.replaceNorm(plg.getFirstVector(), face.getPlg().getFirstVector(),  pn1);
+            face.replaceNorm(plg.getSecondVector(), face.getPlg().getSecondVector(), pn2);
+            face.replaceNorm(plg.getThirdVector(), face.getPlg().getThirdVector(), pn3);
+
+            face.replaceTexture(plg.getFirstVector(), face.getPlg().getFirstVector(), pt1);
+            face.replaceTexture(plg.getSecondVector(), face.getPlg().getSecondVector(), pt2);
+            face.replaceTexture(plg.getThirdVector(), face.getPlg().getThirdVector(), pt3);
+
+            faces.set(i, face);
+            //TODO возможно стоит добавить текстуры
+        }
     }
 
     public void rotate(double alpha, double beta, double gamma){

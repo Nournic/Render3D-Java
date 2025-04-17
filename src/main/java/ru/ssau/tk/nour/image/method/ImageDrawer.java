@@ -14,26 +14,26 @@ import static java.lang.Math.ceil;
 
 public class ImageDrawer implements Drawer {
     private final Model model;
-    private final ImageScale imageScale;
+    private final ProjectScale projectScale;
     private ModelRotate rotate;
     private BufferedImage img;
 
-    public ImageDrawer(Model model, ImageScale imageScale) {
+    public ImageDrawer(Model model, ProjectScale projectScale) {
         this.model = model;
-        this.imageScale = imageScale;
+        this.projectScale = projectScale;
     }
 
-    public ImageDrawer(Model model, ImageScale imageScale, ModelRotate transform) {
-        this(model, imageScale);
+    public ImageDrawer(Model model, ProjectScale projectScale, ModelRotate transform) {
+        this(model, projectScale);
 
         this.rotate = transform;
     }
 
     public BufferedImage draw(int width, int height) {
         img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        double[][] zBuffer = new double[1000][1000];
-        for (int i = 0; i < 1000; i++) {
-            for (int j = 0; j < 1000; j++) {
+        double[][] zBuffer = new double[width][height];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
                 zBuffer[i][j] = Double.MAX_VALUE;
             }
         }
@@ -64,19 +64,19 @@ public class ImageDrawer implements Drawer {
             Polygon plg = face.getPlg();
             Face projectFace = new Face(new Polygon(
                     new Vector3(
-                            imageScale.getScaleX() * (plg.getFirstVector().getX() / plg.getFirstVector().getZ()) + imageScale.getShiftX(),
-                            imageScale.getScaleY() * (plg.getFirstVector().getY() / plg.getFirstVector().getZ()) + imageScale.getShiftY(),
-                            imageScale.getScaleZ() * plg.getFirstVector().getZ() + imageScale.getShiftZ()
+                            projectScale.getScaleX() * (plg.getFirstVector().getX() / plg.getFirstVector().getZ()) + projectScale.getShiftX(),
+                            projectScale.getScaleY() * (plg.getFirstVector().getY() / plg.getFirstVector().getZ()) + projectScale.getShiftY(),
+                            projectScale.getScaleZ() * plg.getFirstVector().getZ() + projectScale.getShiftZ()
                     ),
                     new Vector3(
-                            imageScale.getScaleX() * (plg.getSecondVector().getX() / plg.getSecondVector().getZ()) + imageScale.getShiftX(),
-                            imageScale.getScaleY() * (plg.getSecondVector().getY() / plg.getSecondVector().getZ()) + imageScale.getShiftY(),
-                            imageScale.getScaleZ() * plg.getSecondVector().getZ() + imageScale.getShiftZ()
+                            projectScale.getScaleX() * (plg.getSecondVector().getX() / plg.getSecondVector().getZ()) + projectScale.getShiftX(),
+                            projectScale.getScaleY() * (plg.getSecondVector().getY() / plg.getSecondVector().getZ()) + projectScale.getShiftY(),
+                            projectScale.getScaleZ() * plg.getSecondVector().getZ() + projectScale.getShiftZ()
                     ),
                     new Vector3(
-                            imageScale.getScaleX() * (plg.getThirdVector().getX() / plg.getThirdVector().getZ()) + imageScale.getShiftX(),
-                            imageScale.getScaleY() * (plg.getThirdVector().getY() / plg.getThirdVector().getZ()) + imageScale.getShiftY(),
-                            imageScale.getScaleZ() * plg.getThirdVector().getZ() + imageScale.getShiftZ()
+                            projectScale.getScaleX() * (plg.getThirdVector().getX() / plg.getThirdVector().getZ()) + projectScale.getShiftX(),
+                            projectScale.getScaleY() * (plg.getThirdVector().getY() / plg.getThirdVector().getZ()) + projectScale.getShiftY(),
+                            projectScale.getScaleZ() * plg.getThirdVector().getZ() + projectScale.getShiftZ()
                     )));
             projectFace.addNorm(projectFace.getPlg().getFirstVector(), face.getNorm(plg.getFirstVector()));
             projectFace.addNorm(projectFace.getPlg().getSecondVector(), face.getNorm(plg.getSecondVector()));
